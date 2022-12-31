@@ -1,0 +1,6 @@
+numpy==1.16.2
+gensim==3.2
+psutil
+pathlib
+jieba
+tensorflow

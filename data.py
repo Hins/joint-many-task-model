@@ -5,6 +5,7 @@ import numpy as np
 from itertools import chain
 from collections import namedtuple
 import json
+import jieba
 
 
 def split(x):
@@ -53,14 +54,21 @@ for i, _ in enumerate(word_level['chunk']):
     for j, _ in enumerate(word_level['chunk'][i]):
         word_level['chunk'][i][j] = word_level[
             'c2i'][word_level['chunk'][i][j]]
-
+'''
+sent = []
+with open("./dep_train.txt", "w") as f:
+    for line in f:
+        sent.append([word for word in jieba.cut(line.replace("\n", ""))])
+'''
 sick = pd.read_csv('data/SICK.txt', sep='\t')
 sent = pd.concat(
     [pd.concat([sick.sentence_A, sick.sentence_B]).apply(split), word_level['sent']])
 i2w = dict(enumerate(set(chain(*sent))))
 w2i = {v: k for k, v in i2w.items()}
+print("sent is ")
+print(sent)
 
-model = Word2Vec(sent, min_count=1, size=300, sg=1, iter=25, negative=128, workers=multiprocessing.cpu_count(),
+model = Word2Vec(sent, size=300, min_count=1, sg=1, iter=2, negative=128, workers=multiprocessing.cpu_count(),
                  window=2, batch_words=500)
 
 for i, _ in enumerate(word_level['sent']):

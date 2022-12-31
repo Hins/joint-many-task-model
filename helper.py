@@ -3,39 +3,39 @@ import numpy as np
 
 
 def length(sequence):
-    used = tf.sign(tf.reduce_max(tf.abs(sequence), reduction_indices=2))
-    length = tf.reduce_sum(used, reduction_indices=1)
-    length = tf.cast(length, tf.int32)
+    used = tf.compat.v1.sign(tf.compat.v1.reduce_max(tf.compat.v1.abs(sequence), reduction_indices=2))
+    length = tf.compat.v1.reduce_sum(used, reduction_indices=1)
+    length = tf.compat.v1.cast(length, tf.compat.v1.int32)
     return length
 
 
 def cost(output, target):
-    cross_entropy = target * tf.log(output)
-    cross_entropy = -tf.reduce_sum(cross_entropy, reduction_indices=2)
-    mask = tf.sign(tf.reduce_max(tf.abs(target), reduction_indices=2))
+    cross_entropy = target * tf.compat.v1.log(output)
+    cross_entropy = -tf.compat.v1.reduce_sum(cross_entropy, reduction_indices=2)
+    mask = tf.compat.v1.sign(tf.compat.v1.reduce_max(tf.compat.v1.abs(target), reduction_indices=2))
     cross_entropy *= mask
-    cross_entropy = tf.reduce_sum(cross_entropy, reduction_indices=1)
-    cross_entropy /= tf.reduce_sum(mask, reduction_indices=1)
-    return tf.reduce_mean(cross_entropy, name="loss")
+    cross_entropy = tf.compat.v1.reduce_sum(cross_entropy, reduction_indices=1)
+    cross_entropy /= tf.compat.v1.reduce_sum(mask, reduction_indices=1)
+    return tf.compat.v1.reduce_mean(cross_entropy, name="loss")
 
 
-def activate(outputs, weight_shape, bias_shape, activation=tf.nn.softmax):
+def activate(outputs, weight_shape, bias_shape, activation=tf.compat.v1.nn.softmax):
     dim_str = {3: 'ijk,kl->ijl', 2: 'ij,jk->ik'}
-    weights = tf.get_variable(
-        "weights", shape=weight_shape, initializer=tf.random_normal_initializer())
-    biases = tf.get_variable("biases", shape=bias_shape,
-                             initializer=tf.constant_initializer(0.0))
+    weights = tf.compat.v1.get_variable(
+        "weights", shape=weight_shape, initializer=tf.compat.v1.random_normal_initializer())
+    biases = tf.compat.v1.get_variable("biases", shape=bias_shape,
+                             initializer=tf.compat.v1.constant_initializer(0.0))
     if outputs.get_shape().ndims == 2:
-        result = activation(tf.matmul(outputs, weights) + biases)
+        result = activation(tf.compat.v1.matmul(outputs, weights) + biases)
     else:
-        result = activation(tf.reshape(tf.matmul(tf.reshape(outputs, [-1, weight_shape[
+        result = activation(tf.compat.v1.reshape(tf.compat.v1.matmul(tf.compat.v1.reshape(outputs, [-1, weight_shape[
             0]]), weights), [-1, outputs.get_shape().as_list()[1], weight_shape[1]]) + biases)
 
     return result
 
 
 def rmse_loss(outputs, targets):
-    return tf.sqrt(tf.reduce_mean(tf.square(tf.sub(targets, outputs))))
+    return tf.compat.v1.sqrt(tf.compat.v1.reduce_mean(tf.compat.v1.square(tf.compat.v1.subtract(targets, outputs))))
 
 
 def pad(x, max_length, pad_constant=-1):
